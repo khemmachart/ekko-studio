@@ -2823,6 +2823,7 @@ export default {
     namePlaceholder: 'ワークフロー名',
     canvasAriaLabel: 'ワークフローキャンバス',
     workspace: { title: 'ワークスペースを選択', select: 'ワークスペースを選択', clear: 'ワークスペースをクリア' },
+    workspaceTree: { title: 'ワークスペースファイル', refresh: '更新', emptyNoWorkflow: 'ワークフローを選択するとワークスペースファイルが表示されます', emptyNoWorkspace: 'このワークフローにはワークスペースフォルダーが設定されていません', emptyFolder: 'このフォルダーは空です', loadError: 'ワークスペースファイルの読み込みに失敗しました' },
     actions: {
       newWorkflow: '新しいワークフロー', addNode: 'ノードを追加', createWorkflowFirst: '先にワークフローを作成してください', reset: 'リセット',
       startExecution: '実行を開始', executionPending: 'ワークフロー実行はまだ接続されていません', executionStarted: 'ワークフローの実行を開始しました', executionCompleted: 'ワークフローの実行が完了しました', executionFailed: 'ワークフローの実行に失敗しました',

@@ -337,3 +337,13 @@ export async function updateWorkflowSchedule(id: string, scheduleId: string, inp
 export async function deleteWorkflowSchedule(id: string, scheduleId: string): Promise<void> {
   await request<{ ok: true }>(`/api/studio/workflows/${encodeURIComponent(id)}/schedules/${encodeURIComponent(scheduleId)}`, { method: 'DELETE' })
 }
+
+export async function listWorkflowWorkspaceFiles(
+  id: string,
+  path: string = '',
+): Promise<import('./workspace-files').FileListResult> {
+  const params = new URLSearchParams()
+  if (path) params.set('path', path)
+  const query = params.toString()
+  return request(`/api/studio/workflows/${encodeURIComponent(id)}/workspace-files/list${query ? `?${query}` : ''}`)
+}

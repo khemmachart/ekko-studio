@@ -24286,6 +24286,50 @@
         ]
       }
     },
+    "/api/studio/workflows/{id}/workspace-files/list": {
+      "get": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Get list",
+        "description": "GET /api/studio/workflows/:id/workspace-files/list",
+        "operationId": "listWorkspaceFiles",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
     "/api/studio/workspace/folders": {
       "get": {
         "tags": [

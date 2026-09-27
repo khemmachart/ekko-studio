@@ -63,6 +63,7 @@ import {
   workflowLoopBodyNodeIds,
 } from '@/utils/workflow-edge-authoring'
 import WorkflowAgentNode from '@/components/hermes/workflow/WorkflowAgentNode.vue'
+import WorkflowWorkspaceTree from '@/components/hermes/workflow/WorkflowWorkspaceTree.vue'
 import { canScopedCodingAgentUseProvider } from '@/utils/codingAgentProviders'
 import WorkflowFieldHelp from '@/components/hermes/workflow/WorkflowFieldHelp.vue'
 import WorkflowConditionEdge from '@/components/hermes/workflow/WorkflowConditionEdge.vue'
@@ -3321,6 +3322,12 @@ function nodeColor(node: { data: WorkflowAgentNodeData }) {
       </div>
       <PageSidebarFooter v-if="showWorkflowSidebar" />
     </aside>
+
+    <WorkflowWorkspaceTree
+      v-if="showWorkflowSidebar && activeWorkflowId"
+      :workflow-id="activeWorkflowId"
+      :workspace="workflowWorkspace"
+    />
 
     <main
       class="workflow-main"

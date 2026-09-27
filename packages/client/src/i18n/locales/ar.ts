@@ -1282,6 +1282,14 @@ export default {
       select: 'اختر مساحة العمل',
       clear: 'مسح مساحة العمل',
     },
+    workspaceTree: {
+      title: 'ملفات مساحة العمل',
+      refresh: 'تحديث',
+      emptyNoWorkflow: 'اختر سير عمل لعرض ملفات مساحة عمله',
+      emptyNoWorkspace: 'لم يتم تعيين مجلد مساحة عمل لسير العمل هذا',
+      emptyFolder: 'هذا المجلد فارغ',
+      loadError: 'تعذر تحميل ملفات مساحة العمل',
+    },
     actions: {
       newWorkflow: 'مسار عمل جديد',
       addNode: 'إضافة عقدة',

@@ -61,6 +61,7 @@ interface MockHermesApiOptions {
   workflowScheduleGetSnapshotAtRequest?: boolean
   workflowScheduleMutationDelays?: Partial<Record<'POST' | 'PATCH' | 'DELETE', number>>
   workflowImportDocument?: unknown
+  workflowWorkspaceFiles?: Record<string, Array<{ name: string; path: string; isDir: boolean; size: number; modTime: string }>>
   workflowImportPreviewError?: string
   channelCredentials?: boolean
   channelConfig?: Record<string, unknown>
@@ -613,6 +614,18 @@ export async function mockHermesApi(page: Page, options: MockHermesApiOptions = 
 
     if (/^\/api\/studio\/sessions\/[^/]+\/workspace-files\/list$/.test(pathname)) {
       await route.fulfill(jsonResponse({ entries: [], path: '', absolutePath: '' }))
+      return
+    }
+
+    const workflowWorkspaceFilesMatch = pathname.match(/^\/api\/studio\/workflows\/([^/]+)\/workspace-files\/list$/)
+    if (workflowWorkspaceFilesMatch) {
+      const workflowId = workflowWorkspaceFilesMatch[1]
+      const requestedPath = url.searchParams.get('path') || ''
+      const allEntries = options.workflowWorkspaceFiles?.[workflowId] || []
+      const entries = requestedPath
+        ? allEntries.filter(entry => entry.path.startsWith(`${requestedPath}/`) && !entry.path.slice(requestedPath.length + 1).includes('/'))
+        : allEntries.filter(entry => !entry.path.includes('/'))
+      await route.fulfill(jsonResponse({ entries, path: requestedPath, absolutePath: requestedPath }))
       return
     }
 

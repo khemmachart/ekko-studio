@@ -2824,6 +2824,7 @@ jobTriggered: 'Job ausgelost',
     namePlaceholder: 'Workflow-Name',
     canvasAriaLabel: 'Workflow-Arbeitsfläche',
     workspace: { title: 'Arbeitsbereich auswählen', select: 'Arbeitsbereich auswählen', clear: 'Arbeitsbereich entfernen' },
+    workspaceTree: { title: 'Arbeitsbereichsdateien', refresh: 'Aktualisieren', emptyNoWorkflow: 'Wählen Sie einen Workflow aus, um dessen Arbeitsbereichsdateien anzuzeigen', emptyNoWorkspace: 'Für diesen Workflow ist kein Arbeitsbereichsordner festgelegt', emptyFolder: 'Dieser Ordner ist leer', loadError: 'Arbeitsbereichsdateien konnten nicht geladen werden' },
     actions: {
       newWorkflow: 'Neuer Workflow', addNode: 'Knoten hinzufügen', createWorkflowFirst: 'Bitte zuerst einen Workflow erstellen', reset: 'Zurücksetzen',
       startExecution: 'Ausführung starten', executionPending: 'Die Workflow-Ausführung ist noch nicht verbunden', executionStarted: 'Workflow-Ausführung gestartet', executionCompleted: 'Workflow-Ausführung abgeschlossen', executionFailed: 'Workflow-Ausführung fehlgeschlagen',

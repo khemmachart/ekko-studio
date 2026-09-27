@@ -1561,3 +1561,43 @@ test('a pending schedule toggle disables that schedule until its request complet
   await expect(api.requests.filter(request => request.method === 'PATCH' && request.pathname.endsWith('/schedules/schedule-a'))).toHaveLength(1)
   await expect(scheduleA.getByText('Disabled', { exact: true })).toBeVisible()
 })
+
+test('workflow workspace tree lists files for the active workflow and supports multi-select', async ({ page }) => {
+  await authenticate(page, TEST_ACCESS_KEY, 'research')
+  const api = await mockHermesApi(page, {
+    workflows: [{
+      id: 'wf-workspace-tree', name: 'Workspace tree workflow', profile: 'research', workspace: '/tmp/wf-workspace-tree',
+      nodes: [], edges: [], viewport: null, created_at: 1, updated_at: 1,
+    }],
+    workflowWorkspaceFiles: {
+      'wf-workspace-tree': [
+        { name: 'notes.txt', path: 'notes.txt', isDir: false, size: 5, modTime: new Date().toISOString() },
+        { name: 'src', path: 'src', isDir: true, size: 0, modTime: new Date().toISOString() },
+      ],
+    },
+  })
+
+  await page.goto('/#/hermes/workflow')
+  const tree = page.locator('.workflow-workspace-tree')
+  await expect(tree).toBeVisible()
+  await expect(tree).toContainText('notes.txt')
+  await expect(tree).toContainText('src')
+
+  const notesNode = tree.locator('.workspace-tree-node', { hasText: 'notes.txt' })
+  const srcNode = tree.locator('.workspace-tree-node', { hasText: 'src' })
+
+  await notesNode.click()
+  await expect(notesNode).toHaveClass(/workspace-tree-node--selected/)
+
+  await srcNode.click({ modifiers: ['ControlOrMeta'] })
+  await expect(notesNode).toHaveClass(/workspace-tree-node--selected/)
+  await expect(srcNode).toHaveClass(/workspace-tree-node--selected/)
+
+  await srcNode.click()
+  await expect(srcNode).toHaveClass(/workspace-tree-node--selected/)
+  await expect(notesNode).not.toHaveClass(/workspace-tree-node--selected/)
+
+  expect(api.requests.some(request => (
+    request.method === 'GET' && request.pathname === '/api/studio/workflows/wf-workspace-tree/workspace-files/list'
+  ))).toBe(true)
+})

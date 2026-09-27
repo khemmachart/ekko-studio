@@ -1,5 +1,6 @@
 import Router from '@koa/router'
 import * as ctrl from '../controllers/workflows'
+import * as workspaceCtrl from '../controllers/workflow-workspace'
 
 export const workflowRoutes = new Router()
 
@@ -21,6 +22,7 @@ workflowRoutes.post('/api/studio/workflows/:id/runs/:runId/nodes/:nodeId/approva
 workflowRoutes.post('/api/studio/workflows/:id/runs/:runId/rerun-from-node', ctrl.rerunFromNode)
 workflowRoutes.delete('/api/studio/workflows/:id/runs/:runId', ctrl.deleteRun)
 workflowRoutes.post('/api/studio/workflows/:id/run', ctrl.runNow)
+workflowRoutes.get('/api/studio/workflows/:id/workspace-files/list', workspaceCtrl.listWorkspaceFiles)
 workflowRoutes.get('/api/studio/workflows/:id', ctrl.get)
 workflowRoutes.patch('/api/studio/workflows/:id', ctrl.update)
 workflowRoutes.delete('/api/studio/workflows/:id', ctrl.remove)
