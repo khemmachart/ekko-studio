@@ -500,6 +500,8 @@ test('workflow canvas exposes orchestration editing and portability controls', a
 })
 
 test('workflow nodes connect from every side and create an automatic self loop', async ({ page }) => {
+  // Self-loop paths route outside the node; keep them inside the canvas next to both sidebars.
+  await page.setViewportSize({ width: 1600, height: 900 })
   await authenticate(page, TEST_ACCESS_KEY, 'research')
   const nodes = [{
     id: 'review', type: 'agent', position: { x: 220, y: 100 },
@@ -707,6 +709,8 @@ test('workflow edge editor never exposes technical node ids when node titles are
 })
 
 test('opposite-side self loops use measured node bounds in the rendered SVG', async ({ page }) => {
+  // Self-loop paths route outside the node; keep them inside the canvas next to both sidebars.
+  await page.setViewportSize({ width: 1600, height: 900 })
   await authenticate(page, TEST_ACCESS_KEY, 'research')
   const feedback = { orchestration: { route: 'success', feedback: { maxIterations: 3 } } }
   const nodes = [
