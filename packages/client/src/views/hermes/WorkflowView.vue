@@ -353,6 +353,8 @@ const workflowSchedules = ref<WorkflowScheduleRecord[]>([])
 const workflowSchedulesLoading = ref(false)
 const workflowScheduleLoadError = ref('')
 const persistedWorkflowScheduleStartNodes = ref<Record<string, WorkflowSelectOption[]>>({})
+// Last saved workspace per workflow; the workspace tree lists what the server has persisted.
+const persistedWorkflowWorkspaces = ref<Record<string, string | null>>({})
 const workflowScheduleModalVisible = ref(false)
 const workflowScheduleSubmitting = ref(false)
 const editingWorkflowScheduleId = ref<string | null>(null)
@@ -1265,6 +1267,7 @@ async function loadWorkflows() {
       workflow.id,
       workflow.nodes.map(node => ({ label: node.data.title || node.id, value: node.id })),
     ]))
+    persistedWorkflowWorkspaces.value = Object.fromEntries(docs.map(workflow => [workflow.id, workflow.workspace]))
     const previousActiveId = activeWorkflowId.value
     workflows.value = docs
     if (docs.length === 0) {
@@ -1812,6 +1815,10 @@ function setPersistedWorkflowScheduleStartNodes(workflow: WorkflowDocument) {
   persistedWorkflowScheduleStartNodes.value = {
     ...persistedWorkflowScheduleStartNodes.value,
     [workflow.id]: workflow.nodes.map(node => ({ label: node.data.title || node.id, value: node.id })),
+  }
+  persistedWorkflowWorkspaces.value = {
+    ...persistedWorkflowWorkspaces.value,
+    [workflow.id]: workflow.workspace,
   }
 }
 
@@ -3324,9 +3331,9 @@ function nodeColor(node: { data: WorkflowAgentNodeData }) {
     </aside>
 
     <WorkflowWorkspaceTree
-      v-if="showWorkflowSidebar && activeWorkflowId"
+      v-if="showWorkflowSidebar && activeWorkflowId && !isMobile"
       :workflow-id="activeWorkflowId"
-      :workspace="workflowWorkspace"
+      :workspace="persistedWorkflowWorkspaces[activeWorkflowId] ?? null"
     />
 
     <main

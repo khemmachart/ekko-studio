@@ -20,18 +20,17 @@ interface WorkspaceTreeOption extends TreeOption {
 }
 
 const treeData = ref<WorkspaceTreeOption[]>([])
-const rootLabel = computed(() => {
-  const workspace = String(props.workspace || '').replace(/[\\/]+$/, '')
-  return workspace ? workspace.split(/[\\/]/).pop() || workspace : ''
-})
+// Absolute root reported by the server; it falls back to the default
+// workflow workspace when none is saved, so the prop alone is not enough.
+const rootPath = ref('')
 const loading = ref(false)
 const loadError = ref(false)
+const failedKeys = ref(new Set<string>())
 const treeInstanceKey = ref(0)
 let loadSeq = 0
 
 const hasWorkflow = computed(() => Boolean(props.workflowId))
-const hasWorkspace = computed(() => Boolean(props.workspace))
-const isEmptyFolder = computed(() => !loading.value && !loadError.value && hasWorkspace.value && treeData.value.length === 0)
+const isEmptyFolder = computed(() => !loading.value && !loadError.value && treeData.value.length === 0)
 
 function toOption(entry: FileEntry): WorkspaceTreeOption {
   return {
@@ -45,16 +44,15 @@ function toOption(entry: FileEntry): WorkspaceTreeOption {
 async function loadChildren(path: string): Promise<WorkspaceTreeOption[]> {
   if (!props.workflowId) return []
   const result = await listWorkflowWorkspaceFiles(props.workflowId, path)
-  return result.entries
-    .map(toOption)
-    .sort((a, b) => (
-      a.entry.isDir === b.entry.isDir ? a.entry.name.localeCompare(b.entry.name) : a.entry.isDir ? -1 : 1
-    ))
+  if (!path) rootPath.value = result.absolutePath || ''
+  return result.entries.map(toOption)
 }
 
 async function loadRoot(): Promise<void> {
   const seq = ++loadSeq
-  if (!props.workflowId || !props.workspace) {
+  failedKeys.value = new Set()
+  rootPath.value = ''
+  if (!props.workflowId) {
     treeData.value = []
     loadError.value = false
     loading.value = false
@@ -77,11 +75,22 @@ async function loadRoot(): Promise<void> {
 
 async function handleLoad(node: TreeOption): Promise<void> {
   const seq = loadSeq
+  const key = node.key as string
   try {
-    const children = await loadChildren(node.key as string)
-    if (seq === loadSeq) node.children = children
+    const children = await loadChildren(key)
+    if (seq !== loadSeq) return
+    node.children = children
+    if (failedKeys.value.has(key)) {
+      const next = new Set(failedKeys.value)
+      next.delete(key)
+      failedKeys.value = next
+    }
   } catch {
-    if (seq === loadSeq) node.children = []
+    if (seq !== loadSeq) return
+    // Leave the folder expandable-but-empty and flag it instead of
+    // pretending it has no entries (unreadable dir, symlink out of workspace).
+    node.children = []
+    failedKeys.value = new Set(failedKeys.value).add(key)
   }
 }
 
@@ -117,6 +126,13 @@ function renderPrefix({ option }: { option: TreeOption }) {
 
 function renderLabel({ option }: { option: TreeOption }) {
   const label = String(option.label || '')
+  if (failedKeys.value.has(option.key as string)) {
+    const error = t('workflow.workspaceTree.loadError')
+    return h('span', { class: 'workspace-tree-label workspace-tree-label--error', title: `${label} — ${error}` }, [
+      label,
+      h('span', { class: 'workspace-tree-label-error' }, ` · ${error}`),
+    ])
+  }
   return h('span', { class: 'workspace-tree-label', title: label }, label)
 }
 
@@ -131,16 +147,12 @@ function nodeProps({ option }: { option: TreeOption }) {
 watch(
   () => [props.workflowId, props.workspace] as const,
   ([nextId, nextWorkspace], previous) => {
+    // Selection is kept per workflow id, so switching workflows keeps each
+    // workflow's selection. Only a saved workspace change for the same
+    // workflow clears it: the old paths no longer resolve against the new root.
     if (previous) {
       const [previousId, previousWorkspace] = previous
-      if (previousId !== nextId) {
-        // Switched to a different workflow: drop the old workflow's
-        // selection, but keep any prior selection for the workflow we are
-        // returning to (state is keyed per workflow id in the store).
-        if (previousId) store.clearSelection(previousId)
-      } else if (previousWorkspace !== nextWorkspace && nextId) {
-        // Same workflow, workspace folder changed (e.g. via FolderPicker):
-        // previously selected paths no longer resolve against the new root.
+      if (previousId === nextId && previousWorkspace !== nextWorkspace && nextId) {
         store.clearSelection(nextId)
       }
     }
@@ -154,14 +166,14 @@ watch(
 <template>
   <aside class="workflow-workspace-tree">
     <div class="workspace-tree-header">
-      <span class="workspace-tree-title" :title="rootLabel">{{ t('workflow.workspaceTree.title') }}</span>
+      <span class="workspace-tree-title" :title="rootPath">{{ t('workflow.workspaceTree.title') }}</span>
       <NTooltip trigger="hover">
         <template #trigger>
           <NButton
             quaternary
             size="tiny"
             circle
-            :disabled="!hasWorkflow || !hasWorkspace"
+            :disabled="!hasWorkflow"
             :aria-label="t('workflow.workspaceTree.refresh')"
             @click="handleRefresh"
           >
@@ -180,9 +192,6 @@ watch(
 
     <div v-if="!hasWorkflow" class="workspace-tree-empty">
       {{ t('workflow.workspaceTree.emptyNoWorkflow') }}
-    </div>
-    <div v-else-if="!hasWorkspace" class="workspace-tree-empty">
-      {{ t('workflow.workspaceTree.emptyNoWorkspace') }}
     </div>
     <div v-else-if="loading" class="workspace-tree-empty">
       {{ t('common.loading') }}
@@ -216,7 +225,7 @@ watch(
   width: $sidebar-width;
   min-height: 0;
   align-self: stretch;
-  margin: 10px 0;
+  margin: 10px 10px 10px 0;
   background: $bg-sidebar-surface;
   border: 1px solid $border-color;
   border-radius: 14px;
@@ -282,6 +291,11 @@ watch(
   font-size: 13px;
 }
 
+:deep(.workspace-tree-label-error) {
+  color: $text-muted;
+  font-size: 11px;
+}
+
 :deep(.workspace-tree-icon) {
   width: 14px;
   height: 14px;
@@ -290,11 +304,5 @@ watch(
   stroke-width: 1.15;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-@media (max-width: $breakpoint-mobile) {
-  .workflow-workspace-tree {
-    display: none;
-  }
 }
 </style>

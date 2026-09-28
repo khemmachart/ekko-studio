@@ -1293,7 +1293,6 @@ export default {
       title: '工作区文件',
       refresh: '刷新',
       emptyNoWorkflow: '选择一个工作流以查看其工作区文件',
-      emptyNoWorkspace: '此工作流尚未设置工作区文件夹',
       emptyFolder: '此文件夹为空',
       loadError: '加载工作区文件失败',
     },

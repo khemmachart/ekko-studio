@@ -1173,7 +1173,6 @@ export default {
       title: 'Файлы рабочей области',
       refresh: 'Обновить',
       emptyNoWorkflow: 'Выберите workflow, чтобы увидеть файлы его рабочей области',
-      emptyNoWorkspace: 'Для этого workflow не задана папка рабочей области',
       emptyFolder: 'Эта папка пуста',
       loadError: 'Не удалось загрузить файлы рабочей области',
     },

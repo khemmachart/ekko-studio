@@ -1286,7 +1286,6 @@ export default {
       title: 'ملفات مساحة العمل',
       refresh: 'تحديث',
       emptyNoWorkflow: 'اختر سير عمل لعرض ملفات مساحة عمله',
-      emptyNoWorkspace: 'لم يتم تعيين مجلد مساحة عمل لسير العمل هذا',
       emptyFolder: 'هذا المجلد فارغ',
       loadError: 'تعذر تحميل ملفات مساحة العمل',
     },

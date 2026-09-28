@@ -2824,7 +2824,7 @@ jobTriggered: 'Job ejecutado',
     namePlaceholder: 'Nombre del Workflow',
     canvasAriaLabel: 'Lienzo del Workflow',
     workspace: { title: 'Seleccionar espacio de trabajo', select: 'Seleccionar espacio de trabajo', clear: 'Limpiar espacio de trabajo' },
-    workspaceTree: { title: 'Archivos del espacio de trabajo', refresh: 'Actualizar', emptyNoWorkflow: 'Selecciona un Workflow para ver los archivos de su espacio de trabajo', emptyNoWorkspace: 'Este Workflow no tiene una carpeta de espacio de trabajo configurada', emptyFolder: 'Esta carpeta está vacía', loadError: 'No se pudieron cargar los archivos del espacio de trabajo' },
+    workspaceTree: { title: 'Archivos del espacio de trabajo', refresh: 'Actualizar', emptyNoWorkflow: 'Selecciona un Workflow para ver los archivos de su espacio de trabajo', emptyFolder: 'Esta carpeta está vacía', loadError: 'No se pudieron cargar los archivos del espacio de trabajo' },
     actions: {
       newWorkflow: 'Nuevo Workflow', addNode: 'Añadir nodo', createWorkflowFirst: 'Crea primero un Workflow', reset: 'Restablecer',
       startExecution: 'Iniciar ejecución', executionPending: 'La ejecución del Workflow aún no está conectada', executionStarted: 'Ejecución del Workflow iniciada', executionCompleted: 'Ejecución del Workflow completada', executionFailed: 'La ejecución del Workflow ha fallado',

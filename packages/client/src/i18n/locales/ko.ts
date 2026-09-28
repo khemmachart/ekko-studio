@@ -2823,7 +2823,7 @@ export default {
     namePlaceholder: '워크플로 이름',
     canvasAriaLabel: '워크플로 캔버스',
     workspace: { title: '작업 공간 선택', select: '작업 공간 선택', clear: '작업 공간 지우기' },
-    workspaceTree: { title: '작업 공간 파일', refresh: '새로고침', emptyNoWorkflow: '워크플로를 선택하면 해당 작업 공간 파일이 표시됩니다', emptyNoWorkspace: '이 워크플로에 작업 공간 폴더가 설정되어 있지 않습니다', emptyFolder: '이 폴더는 비어 있습니다', loadError: '작업 공간 파일을 불러오지 못했습니다' },
+    workspaceTree: { title: '작업 공간 파일', refresh: '새로고침', emptyNoWorkflow: '워크플로를 선택하면 해당 작업 공간 파일이 표시됩니다', emptyFolder: '이 폴더는 비어 있습니다', loadError: '작업 공간 파일을 불러오지 못했습니다' },
     actions: {
       newWorkflow: '새 워크플로', addNode: '노드 추가', createWorkflowFirst: '먼저 워크플로를 만들어 주세요', reset: '초기화',
       startExecution: '실행 시작', executionPending: '워크플로 실행이 아직 연결되지 않았습니다', executionStarted: '워크플로 실행을 시작했습니다', executionCompleted: '워크플로 실행이 완료되었습니다', executionFailed: '워크플로 실행에 실패했습니다',

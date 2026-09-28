@@ -1286,7 +1286,6 @@ export default {
       title: '工作區檔案',
       refresh: '重新整理',
       emptyNoWorkflow: '選擇一個工作流程以查看其工作區檔案',
-      emptyNoWorkspace: '此工作流程尚未設定工作區資料夾',
       emptyFolder: '此資料夾為空',
       loadError: '載入工作區檔案失敗',
     },

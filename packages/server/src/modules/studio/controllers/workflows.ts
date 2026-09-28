@@ -22,7 +22,7 @@ function firstQueryValue(value: string | string[] | undefined): string | undefin
   return Array.isArray(value) ? value[0] : value
 }
 
-function profileName(value: unknown): string {
+export function profileName(value: unknown): string {
   return typeof value === 'string' && value.trim() ? value.trim() : 'default'
 }
 
@@ -44,7 +44,7 @@ function allowedProfileSet(ctx: Context): Set<string> | null {
   return new Set(listUserProfiles(user.id).map(profile => profile.profile_name))
 }
 
-function canAccessProfile(ctx: Context, profile: string | null | undefined): boolean {
+export function canAccessProfile(ctx: Context, profile: string | null | undefined): boolean {
   const allowed = allowedProfileSet(ctx)
   return !allowed || allowed.has(profileName(profile))
 }
@@ -62,7 +62,7 @@ function filterByAllowedProfiles<T extends { profile: string }>(ctx: Context, it
   return items.filter(item => allowed.has(profileName(item.profile)))
 }
 
-function requiredId(ctx: Context): string | null {
+export function requiredId(ctx: Context): string | null {
   const id = typeof ctx.params?.id === 'string' ? ctx.params.id.trim() : ''
   if (id) return id
   ctx.status = 400

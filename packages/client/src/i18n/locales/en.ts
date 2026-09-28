@@ -1293,7 +1293,6 @@ export default {
       title: 'Workspace files',
       refresh: 'Refresh',
       emptyNoWorkflow: 'Select a workflow to see its workspace files',
-      emptyNoWorkspace: 'No workspace folder set for this workflow',
       emptyFolder: 'This folder is empty',
       loadError: 'Failed to load workspace files',
     },

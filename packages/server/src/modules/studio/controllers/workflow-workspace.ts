@@ -2,32 +2,13 @@ import { resolve as pathResolve } from 'path'
 import { readdir, stat } from 'fs/promises'
 import type { Context } from 'koa'
 import { getWorkflowManager } from '../services/workflow/manager'
-import { listUserProfiles } from '../public/users'
+import { canAccessProfile, profileName, requiredId } from './workflows'
 import {
   decorateWorkspaceEntries,
   defaultWorkflowWorkspace,
   resolveWorkspacePath,
   workspaceRelativePath,
 } from '../public/workspace-files'
-
-function profileName(value: unknown): string {
-  return typeof value === 'string' && value.trim() ? value.trim() : 'default'
-}
-
-function canAccessProfile(ctx: Context, profile: string | null | undefined): boolean {
-  const user = ctx.state?.user
-  if (!user || user.role === 'super_admin') return true
-  const allowed = new Set(listUserProfiles(user.id).map(entry => entry.profile_name))
-  return allowed.has(profileName(profile))
-}
-
-function requiredId(ctx: Context): string | null {
-  const id = typeof ctx.params?.id === 'string' ? ctx.params.id.trim() : ''
-  if (id) return id
-  ctx.status = 400
-  ctx.body = { error: 'id is required' }
-  return null
-}
 
 function handleWorkspaceError(ctx: Context, err: any): void {
   const status = Number(err?.status || 0)
@@ -67,18 +48,25 @@ export async function listWorkspaceFiles(ctx: Context): Promise<void> {
     }
 
     const dirEntries = await readdir(fullPath, { withFileTypes: true })
-    const entries = await Promise.all(dirEntries.map(async entry => {
+    const statted = await Promise.all(dirEntries.map(async entry => {
       const entryFullPath = pathResolve(fullPath, entry.name)
-      const entryStat = await stat(entryFullPath)
-      return {
-        name: entry.name,
-        path: workspaceRelativePath(workspace, entryFullPath),
-        absolutePath: entryFullPath,
-        isDir: entryStat.isDirectory(),
-        size: entryStat.size,
-        modTime: entryStat.mtime.toISOString(),
+      try {
+        const entryStat = await stat(entryFullPath)
+        return {
+          name: entry.name,
+          path: workspaceRelativePath(workspace, entryFullPath),
+          absolutePath: entryFullPath,
+          isDir: entryStat.isDirectory(),
+          size: entryStat.size,
+          modTime: entryStat.mtime.toISOString(),
+        }
+      } catch {
+        // Skip entries that cannot be stat'ed (dangling symlink, EACCES)
+        // instead of failing the whole listing.
+        return null
       }
     }))
+    const entries = statted.filter((entry): entry is NonNullable<typeof entry> => entry !== null)
     entries.sort((a, b) => (a.isDir === b.isDir ? a.name.localeCompare(b.name) : a.isDir ? -1 : 1))
 
     const decorated = await decorateWorkspaceEntries(workspace, relativePath, entries)

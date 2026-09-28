@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -109,5 +109,27 @@ describe('workflow workspace file routes', () => {
     await listWorkspaceFiles(request)
     expect(request.status).toBe(400)
     expect(request.body).toMatchObject({ code: 'invalid_path' })
+  })
+
+  it('rejects listing a symlinked folder that points outside the workflow workspace', async () => {
+    await mkdir(join(root, 'outside'))
+    await writeFile(join(root, 'outside', 'secret.txt'), 'nope')
+    await symlink(join(root, 'outside'), join(workspace, 'escape'))
+    managerMock.get.mockReturnValue({ id: 'workflow-1', profile: 'default', workspace })
+    const request = ctx({ query: { path: 'escape' } })
+    await listWorkspaceFiles(request)
+    expect(request.status).toBe(400)
+    expect(JSON.stringify(request.body)).not.toContain('secret.txt')
+  })
+
+  it('skips a dangling symlink instead of failing the whole listing', async () => {
+    await writeFile(join(workspace, 'notes.txt'), 'hello')
+    await symlink(join(root, 'missing-target'), join(workspace, 'dangling'))
+    managerMock.get.mockReturnValue({ id: 'workflow-1', profile: 'default', workspace })
+    const request = ctx()
+    await listWorkspaceFiles(request)
+    expect(request.status).toBe(200)
+    const names = (request.body as { entries: Array<{ name: string }> }).entries.map(entry => entry.name)
+    expect(names).toEqual(['notes.txt'])
   })
 })

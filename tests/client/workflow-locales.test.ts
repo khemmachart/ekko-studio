@@ -43,7 +43,6 @@ const requiredPaths = [
   'workflow.workspaceTree.title',
   'workflow.workspaceTree.refresh',
   'workflow.workspaceTree.emptyNoWorkflow',
-  'workflow.workspaceTree.emptyNoWorkspace',
   'workflow.workspaceTree.emptyFolder',
   'workflow.workspaceTree.loadError',
   ...operatorKeys.flatMap(operator => [
