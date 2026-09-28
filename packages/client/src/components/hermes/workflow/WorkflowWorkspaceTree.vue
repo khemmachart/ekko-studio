@@ -41,11 +41,10 @@ function toOption(entry: FileEntry): WorkspaceTreeOption {
   }
 }
 
-async function loadChildren(path: string): Promise<WorkspaceTreeOption[]> {
-  if (!props.workflowId) return []
+async function fetchEntries(path: string) {
+  if (!props.workflowId) return { entries: [] as WorkspaceTreeOption[], absolutePath: '' }
   const result = await listWorkflowWorkspaceFiles(props.workflowId, path)
-  if (!path) rootPath.value = result.absolutePath || ''
-  return result.entries.map(toOption)
+  return { entries: result.entries.map(toOption), absolutePath: result.absolutePath || '' }
 }
 
 async function loadRoot(): Promise<void> {
@@ -61,9 +60,10 @@ async function loadRoot(): Promise<void> {
   loading.value = true
   loadError.value = false
   try {
-    const children = await loadChildren('')
+    const root = await fetchEntries('')
     if (seq !== loadSeq) return
-    treeData.value = children
+    treeData.value = root.entries
+    rootPath.value = root.absolutePath
   } catch {
     if (seq !== loadSeq) return
     treeData.value = []
@@ -77,9 +77,9 @@ async function handleLoad(node: TreeOption): Promise<void> {
   const seq = loadSeq
   const key = node.key as string
   try {
-    const children = await loadChildren(key)
+    const { entries } = await fetchEntries(key)
     if (seq !== loadSeq) return
-    node.children = children
+    node.children = entries
     if (failedKeys.value.has(key)) {
       const next = new Set(failedKeys.value)
       next.delete(key)
